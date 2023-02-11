@@ -194,6 +194,7 @@ The simplest way to get netlify to run your tests is to:
 - Go to `Site settings` -> `Build & deploy` -> `Build settings`
 - Click on the `Edit settings` button
 - Update the `build` command to:
+
 ```
 npm run test && npm run build
 ```
@@ -207,6 +208,78 @@ To verify this, you can make a change to the code that will cause the tests to f
 While the previous method works, it is not ideal. If we had further tests we needed to run, or if we wanted to run our tests in docker, this would get complicated with the Netlify build settings. Instead, we will use GitHub actions to run our tests.
 
 To do this, we will create a new workflow file in the `.github/workflows` directory. The file should be named `ci.yaml`. It should look like this:
+
+```
+name: CI
+
+on:
+  push:
+    branches:
+      - netlify-actions
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - run: docker build -t react-test -f Dockerfile.dev .
+      - run: docker run -e CI=true react-test npm test
+      - name: Publish
+        uses: jsmrcaga/action-netlify-deploy@v1.1.0
+        with:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.MY_TOKEN_SECRET }}
+          NETLIFY_DEPLOY_TO_PROD: true
+          NETLIFY_SITE_ID: UPDATE_WITH_YOUR_SITE_ID
+```
+
+Before this will work, there are a few things we need to do.
+- Disconnect our repository from Netlify
+- Get the Netlify site ID
+- Create a Netlify access token
+See directions below.
+
+### Disconnect our repository from Netlify
+
+Unlinking your repository from Netlify will make it so pushes to your repository no longer trigger deploys to github. This is because we want to use GitHub actions to deploy to Netlify. 
+
+To do this:
+- Go to [Netlify](https://app.netlify.com/)
+- Go to the site you created by connecting it to the GitHub repository
+- Click on `Site settings` then `Build & deploy`
+- Click on `Manage repository` and then `Unlikn <YOUR REPOSITORY>`
+
+### Get the Netlify site ID
+
+You will need to get the Netlify site ID for our GitHub action. To do this:
+- Go to [Netlify](https://app.netlify.com/)
+- Go to the site you created by connecting it to the GitHub repository
+- Click on `Site settings` then `General`
+- Copy the `Site ID` value
+- Place it in your `ci.yaml` file in the `NETLIFY_SITE_ID` field
+
+### Create a Netlify Access Token
+
+You will need to create a Netlify access token. To do this:
+- Go to [Netlify](https://app.netlify.com/)
+- Click on your profile picture in the top right corner
+- Click on `User settings`
+- Click on `Applications`
+- Under `Personal access tokens`, click on `New access token`
+- Give the token a name and click on the `Create token` button
+- **IMPORTANT:** Do not share this token. Copy the access key and secret access key - once you navigate away from the page AWS will not reveal the key to you again.
+- Copy the token and go to your GitHub repository.
+- Go to `Settings` -> `Secrets and Variables` -> `Actions`
+- Click on the `New repository secret` button
+- Gve the secret the name `MY_TOKEN_SECRET` and store the access token value here
+- Click on the `Add secret` button
+
+### Pushing Code
+
+Commit and push and you should have a functional CI/CD pipeline testing your code before building and deploying to Netlify.
+
+You'll notice that within the build step, GitHub actions is now building the site and pushing the deploy to Netlify. This contrasts with the previous method where Netlify was building the site and pushing the deploy. This is the desired behavior, allowing us to have more control over the build and deploy process.
 
 
 # CI/CD with TravisCI to AWS Elastic Beanstalk
@@ -279,7 +352,7 @@ To deploy to AWS Elastic Beanstalk, you will need to
   - Access Keys
   - Create New Access Key
   - On `Access key best practices & alternatives`, pick `Third-party service`, check you understand their recommendation and click continue (or figure out how to follow their direction about using IAM role instead)
-  - **IMPORTANT:** Copy the access key and secret access key - once you navigate away from the page AWS will not reveal the key to you again.
+  - **IMPORTANT:** Do not share this token. Copy the access key and secret access key - once you navigate away from the page AWS will not reveal the key to you again.
 - Add the access key to TravisCI
 - Navigate to S3 and find the name of the bucket created for your Elastic Beanstalk application
   - **Note:** Bucket name will be used for `UPDATE_WITH_YOUR_BUCKET_NAME` from the `.travis.yml` file
