@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - netlify-actions
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - run: docker build -t react-test -f Dockerfile.dev .
+      - run: docker run -e CI=true react-test npm test
+      - name: Publish
+        uses: jsmrcaga/action-netlify-deploy@v1.1.0
+        with:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.MY_TOKEN_SECRET }}
+          NETLIFY_DEPLOY_TO_PROD: true

@@ -22,14 +22,17 @@ To follow this tutorial, you need to have the following:
 - An AWS account (to create an Elastic Beanstalk instance to deploy from TravisCI and GitHub Actions)
 
 
-## Local Setup
+# Fork This Repository and Pull It Locally
 
-To use this project run locally:
+To use this repository for any of the CI/CD methods we discussed, you can fork it to your GitHub account. Then clone it to your local machine.
 
 ```
-git clone https://github.com/micleners/ci-cd-webgeeks-feb-2023.git
-cd ci-cd-webgeeks-feb-2023
+git clone https://github.com/YOUR-USERNAME/ci-cd-webgeeks-feb-2023
 ```
+
+You can see full instructions on how to do this [here](https://docs.github.com/en/get-started/quickstart/fork-a-repo).
+
+Alternatively, you could clone this repository directly to your local machine. However, you will not be able to push your changes to GitHub unless you update the remote url.
 
 ## Running the App with Docker
 
@@ -163,20 +166,50 @@ COPY --from=builder /app/build /usr/share/nginx/html
 
 This file does similar steps as the `Dockerfile.dev` file. The main difference is that it runs the `npm run build` command to build the app for production. It then uses the `nginx:latest` image as the base image. It copies the build directory to the nginx directory. No command is specified in the Dockerfile. This is because the default command for the nginx image is to start the nginx server.
 
-# Connect Your Local Code to a GitHub Repository
+# CI/CD with GitHub Actions to Netlify
 
-To use any of the CI/CD tools discussed here, you need to connect your local code to a GitHub repository. To do this, create a new repository on GitHub. Then run the following commands, where `<url>` is the url of the GitHub repository you created
+**Note:** You do not need to use GitHub actions to deploy to Netlify. You can use Netlify's GitHub integration to deploy to Netlify directly. However, we will use GitHub actions to deploy to Netlify so you can see how to use GitHub actions, after showing you how to use Netlify's GitHub integration.
 
+## What is Netlify?
+
+Netlify is a CI/CD tool that allows you to deploy and host your app to the web. It started with static site hosting but now supports frameworks with servers with the use of serverless functions.
+
+You can connect GitHub repositories to Netlify. When you push code to a connected repository, Netlify will automatically build and deploy the app. We will start with this so you can see how easy it is to deploy to Netlify. Then we will add integration tests to the CI/CD pipeline using GitHub actions.
+
+## Connecting Netlify to GitHub
+
+To connect Netlify to GitHub:
+- Go to [Netlify Signup](https://app.netlify.com/signup)
+- Sign up using your GitHub account.
+- Click on the `Authorize netlify` button.
+- When given the option, choose `Import an existing project` -> `Import from Git`
+- Choose the repository you created
+- Click on the `Deploy site` button.
+
+You should see a message that says `Your site is building`. Once the build is complete, you should see a message that says `Your site is live`. You can click on the `View site` button to see your app.
+
+## Running Tests
+
+The simplest way to get netlify to run your tests is to:
+- Go to `Site settings` -> `Build & deploy` -> `Build settings`
+- Click on the `Edit settings` button
+- Update the `build` command to:
 ```
-git remote add origin <url>
-git add .
-git commit -m "Initial commit"
-git push -u origin master
+npm run test && npm run build
 ```
 
-You should now see the code on your GitHub repository.
+This will run the tests and then build the app if the tests pass. If the tests fail, the build will fail.
 
-# CI/CD with TravisCI
+To verify this, you can make a change to the code that will cause the tests to fail (or write a new failing test). Then push the code to GitHub. You should see that the build fails. You can see an example of failing tests [here](https://github.com/micleners/ci-cd-webgeeks-feb-2023/pull/1).
+
+## Using GitHub Actions to Run Tests
+
+While the previous method works, it is not ideal. If we had further tests we needed to run, or if we wanted to run our tests in docker, this would get complicated with the Netlify build settings. Instead, we will use GitHub actions to run our tests.
+
+To do this, we will create a new workflow file in the `.github/workflows` directory. The file should be named `ci.yaml`. It should look like this:
+
+
+# CI/CD with TravisCI to AWS Elastic Beanstalk
 
 ## What is TravisCI?
 
@@ -266,7 +299,7 @@ Uncomment the `deploy` section in the `.travis.yml` file. Then update the follow
 - `UPDATE_WITH_YOUR_BUCKET_NAME` -> the name of the directory within the S3 bucket that is generated for your Elastic Beanstalk application. It should contain the word `elasticbeanstalk` and the region you are using.
 - **Note:** Update `region` if your region is not `us-east-2`
 
-# CI/CD with GitHub Actions
+# CI/CD with GitHub Actions to AWS Elastic Beanstalk
 
 ## What is GitHub Actions?
 
