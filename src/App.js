@@ -7,7 +7,7 @@ function App() {
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
-          Edit <code>src/App.js</code> and save to reload. Swapping locations.
+          Edit <code>src/App.js</code> and save to reload. On netlify via github actions.
         </p>
         <a
           className="App-link"
