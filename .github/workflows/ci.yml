@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+
+# env:
+#   AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+#   AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - run: docker build -t react-test -f Dockerfile.dev .
+      - run: docker run -e CI=true react-test npm test
+
+      # - name: Generate deployment package
+      #   run: zip -r deploy.zip . -x '*.git*'
+
+      # - name: Deploy to EB
+      #   uses: einaregilsson/beanstalk-deploy@v21
+      #   with:
+      #     aws_access_key: ${{ env.AWS_ACCESS_KEY }}
+      #     aws_secret_key: ${{ env.AWS_SECRET_KEY }}
+      #     region: us-east-2
+      #     application_name: UPDATE_WITH_YOUR_APPLICATION_NAME
+      #     environment_name: UPDATE_WITH_YOUR_ENV_NAME
+      #     existing_bucket_name: UPDATE_WITH_YOUR_BUCKET_NAME
+      #     version_label: ${{ github.sha }}
+      #     deployment_package: deploy.zip
+      #     use_existing_version_if_available: true
