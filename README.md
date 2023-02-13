@@ -335,7 +335,12 @@ TravisCI is a CI/CD tool that is built into GitHub. It allows you to automate wo
 
 ## Connecting TravisCI to GitHub
 
-To connect TravisCI to GitHub, go to [travis-ci.com](https://travis-ci.com/). Then click on the `Sign in with GitHub` button. Then click on the `+` button next to your GitHub username. Then click on the `Activate` button next to the repository you want to connect to TravisCI. For more details on this, check out the [TravisCI documentation](https://docs.travis-ci.com/user/tutorial/#to-get-started-with-travis-ci-using-github) or this [blog](https://blog.travis-ci.com/2019-05-30-setting-up-a-ci-cd-process-on-github).
+To connect TravisCI to GitHub:
+- Go to [travis-ci.com](https://travis-ci.com/)
+- Click on the `Sign in with GitHub` button
+- Click on the `+` button next to your GitHub username (or `My Repositories`).
+- Either connect the repositories you specifically wante TravisCI to build, or connect with all repositories (TravisCI will only build for repos with a .travis.yml file) 
+For more details on this, check out the [TravisCI documentation](https://docs.travis-ci.com/user/tutorial/#to-get-started-with-travis-ci-using-github) or this [blog](https://blog.travis-ci.com/2019-05-30-setting-up-a-ci-cd-process-on-github).
 
 ## Creating a TravisCI Workflow
 
