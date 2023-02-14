@@ -103,7 +103,7 @@ To run this Dockerfile, make sure you have Docker installed.
 To build and run the app with Docker run the following commands:
 
 ```
-docker build -f Dockerfile.dev -v -t simple-react .
+docker build -f Dockerfile.dev -t simple-react .
 docker run -p 3000:3000 simple-react
 ```
 
