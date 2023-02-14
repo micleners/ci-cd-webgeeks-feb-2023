@@ -6,3 +6,8 @@ test("renders learn react link", () => {
   const linkElement = screen.getByText(/wahoo/i);
   expect(linkElement).toBeInTheDocument();
 });
+
+// broken test
+test("should fail", () => {
+  expect(1).toBe(2);
+});
